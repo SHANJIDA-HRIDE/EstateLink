@@ -8,6 +8,12 @@ import { UnitDetailsPage } from '../pages/UnitDetailsPage';
 import { EditUnitGeneralPage } from '../pages/EditUnitGeneralPage';
 import { AddOwnerPage } from '../pages/AddOwnerPage';
 import { UnitOwnersPage } from '../pages/UnitOwnersPage';
+import { AddResidentPage } from '../pages/AddResidentPage';
+import { UnitResidentsPage } from '../pages/UnitResidentsPage';
+import { AddStaffPage } from '../pages/AddStaffPage';
+import { UnitStaffPage } from '../pages/UnitStaffPage';
+import { RoleListPage } from '../pages/RoleListPage';
+import { AddRolePage } from '../pages/AddRolePage';
 
 /**
  * Custom test fixture that automatically instantiates Page Objects
@@ -49,6 +55,30 @@ export const test = base.extend({
   addOwnerPage: async ({ page }, use) => {
     const addOwnerPage = new AddOwnerPage(page);
     await use(addOwnerPage);
+  },
+  addResidentPage: async ({ page }, use) => {
+    const addResidentPage = new AddResidentPage(page);
+    await use(addResidentPage);
+  },
+  unitResidentsPage: async ({ page }, use) => {
+    const unitResidentsPage = new UnitResidentsPage(page);
+    await use(unitResidentsPage);
+  },
+  addStaffPage: async ({ page }, use) => {
+    const addStaffPage = new AddStaffPage(page);
+    await use(addStaffPage);
+  },
+  unitStaffPage: async ({ page }, use) => {
+    const unitStaffPage = new UnitStaffPage(page);
+    await use(unitStaffPage);
+  },
+  roleListPage: async ({ page }, use) => {
+    const roleListPage = new RoleListPage(page);
+    await use(roleListPage);
+  },
+  addRolePage: async ({ page }, use) => {
+    const addRolePage = new AddRolePage(page);
+    await use(addRolePage);
   }
 });
 

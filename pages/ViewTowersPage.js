@@ -85,6 +85,60 @@ export class ViewTowersPage extends BasePage {
     };
   }
 
+  async openRandomAvailableUnit() {
+    const availableUnits = this.getAvailableUnits();
+    const count = await availableUnits.count();
+
+    if (count === 0) {
+      throw new Error('No available units found');
+    }
+
+    // Get a random index between 0 and count-1
+    const randomIndex = Math.floor(Math.random() * count);
+    const randomUnit = availableUnits.nth(randomIndex);
+
+    await randomUnit.waitFor({ state: 'visible', timeout: 15000 });
+
+    const unitHref = await randomUnit.getAttribute('href');
+    const unitNumber = (await randomUnit.innerText()).trim();
+
+    await randomUnit.click();
+    await this.page.waitForURL(/\/unit-details\/\d+$/, { timeout: 15000 });
+
+    return {
+      unitHref,
+      unitNumber,
+      unitDetailsUrl: this.page.url(),
+    };
+  }
+
+  async openRandomUnoccupiedUnit() {
+    const unoccupiedUnits = this.getUnoccupiedUnits();
+    const count = await unoccupiedUnits.count();
+
+    if (count === 0) {
+      throw new Error('No unoccupied units found');
+    }
+
+    // Get a random index between 0 and count-1
+    const randomIndex = Math.floor(Math.random() * count);
+    const randomUnit = unoccupiedUnits.nth(randomIndex);
+
+    await randomUnit.waitFor({ state: 'visible', timeout: 15000 });
+
+    const unitHref = await randomUnit.getAttribute('href');
+    const unitNumber = (await randomUnit.innerText()).trim();
+
+    await randomUnit.click();
+    await this.page.waitForURL(/\/unit-details\/\d+$/, { timeout: 15000 });
+
+    return {
+      unitHref,
+      unitNumber,
+      unitDetailsUrl: this.page.url(),
+    };
+  }
+
   async clickUnoccupiedUnitByNumber(unitNumber) {
     const unit = this.getUnoccupiedUnits().filter({ hasText: unitNumber }).first();
     await unit.click();

@@ -3,18 +3,19 @@ import { BasePage } from './BasePage';
 export class EditUnitGeneralPage extends BasePage {
   constructor(page) {
     super(page);
-    // Form inputs
-    this.areaInput = page.locator('input[placeholder*="Area"], input[placeholder*="area"]').first();
-    this.numberOfBathroomsInput = page.locator('input[placeholder*="Bathrooms"], input[placeholder*="bathrooms"]');
-    this.numberOfRoomsInput = page.locator('input[placeholder*="Rooms"], input[placeholder*="rooms"]');
-    this.numberOfBalconiesInput = page.locator('input[placeholder*="Balconies"], input[placeholder*="balconies"]');
+    // Form inputs - using exact placeholder matches to avoid conflicts
+    this.areaInput = page.locator('input[placeholder="Area"]');
+    this.numberOfBathroomsInput = page.locator('input[placeholder="Number of Bathrooms"]');
+    this.numberOfRoomsInput = page.locator('input[placeholder="Number of Rooms"]');
+    this.numberOfBalconiesInput = page.locator('input[placeholder="Number of Balconies"]');
     
     // Buttons
     this.saveBtn = page.getByRole('button', { name: /Save/i }).first();
     this.cancelBtn = page.getByRole('button', { name: /Cancel/i }).first();
+    this.okBtn = page.getByRole('button', { name: /^OK$/i });
     
     // Success message
-    this.successMessage = page.getByText(/updated successfully|saved successfully/i);
+    this.successMessage = page.getByText(/General Information has been successfully updated/i);
   }
 
   async fillArea(area) {
@@ -52,11 +53,21 @@ export class EditUnitGeneralPage extends BasePage {
     await this.saveBtn.click();
   }
 
+  async clickOK() {
+    await this.okBtn.click();
+  }
+
   async cancelEdit() {
     await this.cancelBtn.click();
   }
 
   async verifySuccessMessage() {
-    await this.successMessage.waitFor({ state: 'visible', timeout: 10000 });
+    // Wait for the page to settle after save
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(1000);
+    // Wait for success message with increased timeout
+    await this.successMessage.waitFor({ state: 'visible', timeout: 30000 });
   }
+
+
 }

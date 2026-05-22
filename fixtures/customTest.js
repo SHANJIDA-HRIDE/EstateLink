@@ -12,8 +12,10 @@ import { AddResidentPage } from '../pages/Resident/AddResidentPage';
 import { UnitResidentsPage } from '../pages/Resident/UnitResidentsPage';
 import { AddStaffPage } from '../pages/Staff/AddStaffPage';
 import { UnitStaffPage } from '../pages/Staff/UnitStaffPage';
-import { RoleListPage } from '../pages/Role Management/RoleListPage';
-import { AddRolePage } from '../pages/Role Management/AddRolePage';
+import { RoleListPage } from '../pages/Role/RoleListPage';
+import { AddRolePage } from '../pages/Role/AddRolePage';
+import { GroupListPage } from '../pages/Group/GroupListPage';
+import { AddGroupPage } from '../pages/Group/AddGroupPage';
 
 /**
  * Custom test fixture that automatically instantiates Page Objects
@@ -79,6 +81,14 @@ export const test = base.extend({
   addRolePage: async ({ page }, use) => {
     const addRolePage = new AddRolePage(page);
     await use(addRolePage);
+  },
+  groupListPage: async ({ page }, use) => {
+    const groupListPage = new GroupListPage(page);
+    await use(groupListPage);
+  },
+  addGroupPage: async ({ page }, use) => {
+    const addGroupPage = new AddGroupPage(page);
+    await use(addGroupPage);
   }
 });
 

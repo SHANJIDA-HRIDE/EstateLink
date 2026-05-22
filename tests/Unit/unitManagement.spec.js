@@ -1,5 +1,5 @@
-import { test } from '../fixtures/customTest';
-import { Helpers } from '../utils/helpers';
+import { test } from '../../fixtures/customTest';
+import { Helpers } from '../../utils/helpers';
 
 test.describe('Unit Owner Management', () => {
   test.describe.configure({ mode: 'serial' });

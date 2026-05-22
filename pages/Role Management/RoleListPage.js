@@ -1,5 +1,5 @@
-import { BasePage } from './BasePage';
-import { ENV } from '../env/env.config';
+import { BasePage } from '../Base/BasePage';
+import { ENV } from '../../env/env.config';
 
 export class RoleListPage extends BasePage {
   constructor(page) {

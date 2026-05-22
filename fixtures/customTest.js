@@ -1,19 +1,19 @@
 import { test as base } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { MemberListPage } from '../pages/MemberListPage';
-import { AddMemberPage } from '../pages/AddMemberPage';
-import { ViewTowersPage } from '../pages/ViewTowersPage';
-import { AddTowerPage } from '../pages/AddTowerPage';
-import { UnitDetailsPage } from '../pages/UnitDetailsPage';
-import { EditUnitGeneralPage } from '../pages/EditUnitGeneralPage';
-import { AddOwnerPage } from '../pages/AddOwnerPage';
-import { UnitOwnersPage } from '../pages/UnitOwnersPage';
-import { AddResidentPage } from '../pages/AddResidentPage';
-import { UnitResidentsPage } from '../pages/UnitResidentsPage';
-import { AddStaffPage } from '../pages/AddStaffPage';
-import { UnitStaffPage } from '../pages/UnitStaffPage';
-import { RoleListPage } from '../pages/RoleListPage';
-import { AddRolePage } from '../pages/AddRolePage';
+import { LoginPage } from '../pages/Login/LoginPage';
+import { MemberListPage } from '../pages/Org Member/MemberListPage';
+import { AddMemberPage } from '../pages/Org Member/AddMemberPage';
+import { ViewTowersPage } from '../pages/Tower/ViewTowersPage';
+import { AddTowerPage } from '../pages/Tower/AddTowerPage';
+import { UnitDetailsPage } from '../pages/Unit/UnitDetailsPage';
+import { EditUnitGeneralPage } from '../pages/Unit/EditUnitGeneralPage';
+import { AddOwnerPage } from '../pages/Owner/AddOwnerPage';
+import { UnitOwnersPage } from '../pages/Owner/UnitOwnersPage';
+import { AddResidentPage } from '../pages/Resident/AddResidentPage';
+import { UnitResidentsPage } from '../pages/Resident/UnitResidentsPage';
+import { AddStaffPage } from '../pages/Staff/AddStaffPage';
+import { UnitStaffPage } from '../pages/Staff/UnitStaffPage';
+import { RoleListPage } from '../pages/Role Management/RoleListPage';
+import { AddRolePage } from '../pages/Role Management/AddRolePage';
 
 /**
  * Custom test fixture that automatically instantiates Page Objects

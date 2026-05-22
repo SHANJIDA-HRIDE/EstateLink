@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { BasePage } from './BasePage';
-import { ENV } from '../env/env.config';
+import { BasePage } from '../Base/BasePage';
+import { ENV } from '../../env/env.config';
 
 export class AddOwnerPage extends BasePage {
   constructor(page) {

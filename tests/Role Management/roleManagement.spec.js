@@ -1,4 +1,4 @@
-import { test } from '../fixtures/customTest';
+import { test } from '../../fixtures/customTest';
 
 test.describe('Role Management', () => {
   test.describe.configure({ mode: 'serial' });

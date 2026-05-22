@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/customTest';
-import { ENV } from '../env/env.config';
+import { test, expect } from '../../fixtures/customTest';
+import { ENV } from '../../env/env.config';
 
 test('verify session holds on dashboard', async ({ page }) => {
   // Navigate to dashboard using the ENV base URL

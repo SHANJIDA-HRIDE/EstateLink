@@ -1,5 +1,5 @@
-import { test, expect } from '../fixtures/customTest';
-import { Helpers } from '../utils/helpers';
+import { test, expect } from '../../fixtures/customTest';
+import { Helpers } from '../../utils/helpers';
 
 test.describe('Organization Member Management', () => {
 

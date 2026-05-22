@@ -1,4 +1,4 @@
-import { BasePage } from './BasePage';
+import { BasePage } from '../Base/BasePage';
 
 export class EditUnitGeneralPage extends BasePage {
   constructor(page) {

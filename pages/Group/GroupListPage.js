@@ -9,14 +9,11 @@ export class GroupListPage extends BasePage {
 
   async navigateTo() {
     await this.navigate(`${ENV.BASE_URL}/group-list`);
-    await this.page.waitForLoadState('domcontentloaded');
-    await this.page.waitForTimeout(1000);
-    console.log('Group List page loaded');
+    await this.verifyGroupListLoaded();
   }
 
   async clickAddGroup() {
     await this.addGroupBtn.click();
-    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async verifyGroupListLoaded() {

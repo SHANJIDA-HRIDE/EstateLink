@@ -16,6 +16,8 @@ import { RoleListPage } from '../pages/Role/RoleListPage';
 import { AddRolePage } from '../pages/Role/AddRolePage';
 import { GroupListPage } from '../pages/Group/GroupListPage';
 import { AddGroupPage } from '../pages/Group/AddGroupPage';
+import { AnnouncementsPage } from '../pages/Announcement/AnnouncementsPage';
+import { AddAnnouncementPage } from '../pages/Announcement/AddAnnouncementPage';
 
 /**
  * Custom test fixture that automatically instantiates Page Objects
@@ -89,6 +91,14 @@ export const test = base.extend({
   addGroupPage: async ({ page }, use) => {
     const addGroupPage = new AddGroupPage(page);
     await use(addGroupPage);
+  },
+  announcementsPage: async ({ page }, use) => {
+    const announcementsPage = new AnnouncementsPage(page);
+    await use(announcementsPage);
+  },
+  addAnnouncementPage: async ({ page }, use) => {
+    const addAnnouncementPage = new AddAnnouncementPage(page);
+    await use(addAnnouncementPage);
   }
 });
 

@@ -50,20 +50,14 @@ export class AddResidentPage extends BasePage {
   }
 
   async addNewResident(residentData) {
-    // Fill general info
     await this.fillGeneralInfo(residentData);
-    
-    // Click next buttons
+
+    // Advance through the wizard; the final step is reached once Submit is shown.
     await this.clickNext();
-    await this.page.waitForTimeout(500);
-    
     await this.clickNext();
-    await this.page.waitForTimeout(500);
-    
-    // Submit the form
+    await expect(this.submitBtn).toBeVisible({ timeout: 10000 });
     await this.clickSubmit();
-    
-    // Wait for success and click OK
+
     await expect(this.successMessage).toBeVisible({ timeout: 10000 });
     await this.clickOK();
   }

@@ -39,10 +39,8 @@ export class AddMemberPage extends BasePage {
   }
 
   async handleSuccessDialog() {
-    // Wait for success message with extended timeout and visibility check
     await this.successMessage.waitFor({ state: 'visible', timeout: 15000 });
-    // Small delay to ensure button is also visible and clickable
-    await this.page.waitForTimeout(500);
     await this.okButton.click();
+    await this.successMessage.waitFor({ state: 'hidden' });
   }
 }

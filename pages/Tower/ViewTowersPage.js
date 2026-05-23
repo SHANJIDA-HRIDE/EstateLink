@@ -1,36 +1,26 @@
 import { BasePage } from '../Base/BasePage';
 import { ENV } from '../../env/env.config';
 
+// ViewTowers renders a large tower/unit grid and is slow to become interactive,
+// so list/grid waits use a generous timeout.
+const LOAD_TIMEOUT = 45000;
+
 export class ViewTowersPage extends BasePage {
   constructor(page) {
     super(page);
     this.addTowerBtn = page.getByRole('button', { name: /Add Tower/i });
-    this.towerManagementLink = page.getByRole('link', { name: /Tower & Unit Management/i }).first();
   }
 
   async navigateTo() {
-    await this.navigate(`${ENV.BASE_URL}/ViewTowers`);
-    await this.page.waitForLoadState('domcontentloaded');
-    await this.page.waitForTimeout(1000);
-    console.log('ViewTowers page loaded');
-  }
-
-  async clickAddTower() {
-    await this.addTowerBtn.click();
+    await this.page.goto(`${ENV.BASE_URL}/ViewTowers`, {
+      waitUntil: 'domcontentloaded',
+      timeout: LOAD_TIMEOUT,
+    });
+    await this.verifyTowerListLoaded();
   }
 
   async verifyTowerListLoaded() {
-    await this.addTowerBtn.waitFor({ state: 'visible', timeout: 10000 });
-  }
-
-  getTowerCard(towerName) {
-    return this.page.locator(`text=${towerName}`).first();
-  }
-
-  async verifyTowerExists(towerName) {
-    const tower = this.getTowerCard(towerName);
-    await tower.waitFor({ state: 'visible', timeout: 10000 });
-    return true;
+    await this.addTowerBtn.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
   }
 
   getUnoccupiedUnits() {
@@ -45,110 +35,36 @@ export class ViewTowersPage extends BasePage {
     });
   }
 
-  async clickFirstUnoccupiedUnit() {
-    await this.openFirstUnoccupiedUnit();
+  /**
+   * Opens a unit link, then returns its identifying details.
+   * @param {import('@playwright/test').Locator} unitLocator
+   */
+  async #openUnit(unitLocator) {
+    await unitLocator.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+
+    const unitHref = await unitLocator.getAttribute('href');
+    const unitNumber = (await unitLocator.innerText()).trim();
+
+    await unitLocator.click();
+    await this.page.waitForURL(/\/unit-details\/\d+$/, { timeout: LOAD_TIMEOUT });
+
+    return { unitHref, unitNumber, unitDetailsUrl: this.page.url() };
   }
 
   async openFirstUnoccupiedUnit() {
-    const firstUnit = this.getUnoccupiedUnits().first();
-
-    await firstUnit.waitFor({ state: 'visible', timeout: 15000 });
-
-    const unitHref = await firstUnit.getAttribute('href');
-    const unitNumber = (await firstUnit.innerText()).trim();
-
-    await firstUnit.click();
-    await this.page.waitForURL(/\/unit-details\/\d+$/, { timeout: 15000 });
-
-    return {
-      unitHref,
-      unitNumber,
-      unitDetailsUrl: this.page.url(),
-    };
-  }
-
-  async openFirstAvailableUnit() {
-    const firstUnit = this.getAvailableUnits().first();
-
-    await firstUnit.waitFor({ state: 'visible', timeout: 15000 });
-
-    const unitHref = await firstUnit.getAttribute('href');
-    const unitNumber = (await firstUnit.innerText()).trim();
-
-    await firstUnit.click();
-    await this.page.waitForURL(/\/unit-details\/\d+$/, { timeout: 15000 });
-
-    return {
-      unitHref,
-      unitNumber,
-      unitDetailsUrl: this.page.url(),
-    };
+    const units = this.getUnoccupiedUnits();
+    // Wait for the grid to render at least one matching unit before opening.
+    await units.first().waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+    return this.#openUnit(units.first());
   }
 
   async openRandomAvailableUnit() {
     const availableUnits = this.getAvailableUnits();
+    // Wait for the grid to render before counting, otherwise count() races to 0.
+    await availableUnits.first().waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+
     const count = await availableUnits.count();
-
-    if (count === 0) {
-      throw new Error('No available units found');
-    }
-
-    // Get a random index between 0 and count-1
     const randomIndex = Math.floor(Math.random() * count);
-    const randomUnit = availableUnits.nth(randomIndex);
-
-    await randomUnit.waitFor({ state: 'visible', timeout: 15000 });
-
-    const unitHref = await randomUnit.getAttribute('href');
-    const unitNumber = (await randomUnit.innerText()).trim();
-
-    await randomUnit.click();
-    await this.page.waitForURL(/\/unit-details\/\d+$/, { timeout: 15000 });
-
-    return {
-      unitHref,
-      unitNumber,
-      unitDetailsUrl: this.page.url(),
-    };
-  }
-
-  async openRandomUnoccupiedUnit() {
-    const unoccupiedUnits = this.getUnoccupiedUnits();
-    const count = await unoccupiedUnits.count();
-
-    if (count === 0) {
-      throw new Error('No unoccupied units found');
-    }
-
-    // Get a random index between 0 and count-1
-    const randomIndex = Math.floor(Math.random() * count);
-    const randomUnit = unoccupiedUnits.nth(randomIndex);
-
-    await randomUnit.waitFor({ state: 'visible', timeout: 15000 });
-
-    const unitHref = await randomUnit.getAttribute('href');
-    const unitNumber = (await randomUnit.innerText()).trim();
-
-    await randomUnit.click();
-    await this.page.waitForURL(/\/unit-details\/\d+$/, { timeout: 15000 });
-
-    return {
-      unitHref,
-      unitNumber,
-      unitDetailsUrl: this.page.url(),
-    };
-  }
-
-  async clickUnoccupiedUnitByNumber(unitNumber) {
-    const unit = this.getUnoccupiedUnits().filter({ hasText: unitNumber }).first();
-    await unit.click();
-  }
-
-  async getUnoccupiedUnitCount() {
-    return await this.getUnoccupiedUnits().count();
-  }
-
-  async verifyUnoccupiedUnitsExist() {
-    return (await this.getUnoccupiedUnitCount()) > 0;
+    return this.#openUnit(availableUnits.nth(randomIndex));
   }
 }

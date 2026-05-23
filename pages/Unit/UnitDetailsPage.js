@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { BasePage } from '../Base/BasePage';
 import { ENV } from '../../env/env.config';
 
@@ -16,10 +17,6 @@ export class UnitDetailsPage extends BasePage {
     
     // History button
     this.historyBtn = page.getByRole('button', { name: /History/i });
-    
-    // Overview info
-    this.ownersCount = page.locator('text=Owners').locator('..').locator('p').last();
-    this.residentsCount = page.locator('text=Residents').locator('..').locator('p').last();
   }
 
   async navigateToUnit(unitId) {
@@ -51,6 +48,8 @@ export class UnitDetailsPage extends BasePage {
   }
 
   async verifyUnitDetailsLoaded(unitNumber) {
-    await this.page.locator(`heading:has-text('${unitNumber}')`).waitFor({ state: 'visible', timeout: 10000 });
+    await expect(
+      this.page.getByRole('heading', { name: new RegExp(unitNumber) }),
+    ).toBeVisible({ timeout: 10000 });
   }
 }

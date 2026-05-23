@@ -122,18 +122,4 @@ export class AddOwnerPage extends BasePage {
       this.page.getByText(`Total ownership percentage must be exactly 100%. Current total: ${expectedTotal}%`),
     ).toBeVisible({ timeout: 15000 });
   }
-
-  async fillMemberInfo(memberData) {
-    await this.memberNameInput.fill(memberData.name || `${memberData.firstName} ${memberData.lastName || ''}`.trim());
-    await this.memberEmailInput.fill(memberData.email);
-    await this.memberContactInput.fill(memberData.contact || memberData.phone);
-  }
-
-  async fillOwnershipPercentage(percentage) {
-    await this.ownershipPercentageInput.fill(percentage.toString());
-  }
-
-  async fillOwnershipDate() {
-    await this.fillOwnershipDetails({ percentage: await this.ownershipPercentageInput.inputValue() || '100' });
-  }
 }

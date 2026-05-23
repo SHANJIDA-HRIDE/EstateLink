@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { BasePage } from '../Base/BasePage';
 import { ENV } from '../../env/env.config';
 
@@ -10,6 +11,7 @@ export class MemberListPage extends BasePage {
 
   async navigateTo() {
     await this.navigate(`${ENV.BASE_URL}/member-list`);
+    await this.addMemberBtn.waitFor({ state: 'visible', timeout: 10000 });
   }
 
   async clickAddMember() {
@@ -18,39 +20,17 @@ export class MemberListPage extends BasePage {
 
   async searchMember(name) {
     await this.searchInput.fill(name);
-    await this.waitForNetworkIdle();
   }
 
   getMemberLocator(name) {
     return this.page.getByText(name, { exact: false }).first();
   }
 
+  /**
+   * Web-first assertion: expect() re-resolves the locator on every poll, so it
+   * tolerates the list re-rendering/detaching during async load.
+   */
   async verifyMemberVisible(name) {
-    const memberLocator = this.getMemberLocator(name);
-    let lastError;
-    
-    // Retry up to 3 times in case of DOM re-renders causing detachment
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        // Wait for element to exist in DOM
-        await memberLocator.waitFor({ state: 'attached', timeout: 5000 });
-        // Wait a bit for DOM to stabilize
-        await this.page.waitForTimeout(300);
-        // Scroll into view to ensure visibility
-        await memberLocator.scrollIntoViewIfNeeded({ timeout: 5000 });
-        // Verify it's now visible
-        await memberLocator.waitFor({ state: 'visible', timeout: 5000 });
-        return; // Success
-      } catch (error) {
-        lastError = error;
-        if (attempt < 2) {
-          // Wait before retry
-          await this.page.waitForTimeout(500);
-        }
-      }
-    }
-    
-    // If all retries failed, throw the error
-    throw new Error(`Failed to verify member "${name}" is visible: ${lastError.message}`);
+    await expect(this.getMemberLocator(name)).toBeVisible({ timeout: 15000 });
   }
 }

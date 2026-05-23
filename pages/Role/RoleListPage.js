@@ -9,14 +9,11 @@ export class RoleListPage extends BasePage {
 
   async navigateTo() {
     await this.navigate(`${ENV.BASE_URL}/role-list`);
-    await this.page.waitForLoadState('domcontentloaded');
-    await this.page.waitForTimeout(1000);
-    console.log('Role List page loaded');
+    await this.verifyRoleListLoaded();
   }
 
   async clickAddRole() {
     await this.addRoleBtn.click();
-    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async verifyRoleListLoaded() {

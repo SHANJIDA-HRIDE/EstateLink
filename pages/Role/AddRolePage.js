@@ -28,30 +28,24 @@ export class AddRolePage extends BasePage {
   }
 
   async selectAllPermissions() {
-    // Find all checkbox IDs and click their associated labels
+    await this.permissionCheckboxes.first().waitFor({ state: 'attached', timeout: 15000 });
     const checkboxes = await this.permissionCheckboxes.all();
-    
+
     for (const checkbox of checkboxes) {
+      if (await checkbox.isChecked()) continue;
+
       const checkboxId = await checkbox.getAttribute('id');
-      const isChecked = await checkbox.isChecked();
-      
-      if (!isChecked && checkboxId) {
-        // Find and click the associated label
-        const label = this.page.locator(`label[for="${checkboxId}"]`);
-        const labelExists = await label.count() > 0;
-        
-        if (labelExists) {
-          await label.click();
-        } else {
-          // If no label found, try clicking the checkbox with evaluate
-          try {
-            await checkbox.evaluate((el) => el.click());
-          } catch (e) {
-            // Skip if can't click
-          }
-        }
-        await this.page.waitForTimeout(100);
+      const label = checkboxId ? this.page.locator(`label[for="${checkboxId}"]`) : null;
+
+      if (label && (await label.count()) > 0) {
+        await label.click();
+      } else {
+        await checkbox.evaluate((el) => {
+          const input = /** @type {HTMLInputElement} */ (el);
+          if (!input.checked) input.click();
+        });
       }
+      await expect(checkbox).toBeChecked();
     }
   }
 

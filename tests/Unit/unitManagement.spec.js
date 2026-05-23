@@ -11,11 +11,11 @@ test.describe('Unit Owner Management', () => {
   }) => {
     test.setTimeout(90000);
 
-    const uniqueId = Date.now();
+    const id = Helpers.uniqueId();
     const memberData = {
-      name: `Owner Automation ${uniqueId}`,
-      email: `owner.automation.${uniqueId}@gmail.com`,
-      contact: `017${String(uniqueId).slice(-7)}`,
+      name: `Owner Automation ${id}`,
+      email: `owner.automation.${id}@gmail.com`,
+      contact: Helpers.uniqueContact(), // valid 11-digit number
     };
     const ownershipPercentage = '100';
 
@@ -32,8 +32,6 @@ test.describe('Unit Owner Management', () => {
     await addOwnerPage.saveOwner();
 
     await unitOwnersPage.verifyOwnerAdded(unit.unitDetailsUrl, memberData);
-
-    console.log(`Added ${memberData.name} as owner for unit ${unit.unitNumber} (${unit.unitHref})`);
   });
 
   test('Find unoccupied unit and add 3 new owners at a time', async ({
@@ -43,19 +41,21 @@ test.describe('Unit Owner Management', () => {
   }) => {
     test.setTimeout(120000);
 
-    const uniqueId = Date.now();
     const owners = [
       { percentage: '25' },
       { percentage: '40' },
       { percentage: '35' },
-    ].map((owner, index) => ({
-      ...owner,
-      memberData: {
-        name: `Owner Automation ${uniqueId}-${index + 1}`,
-        email: `owner.automation.${uniqueId}.${index + 1}@gmail.com`,
-        contact: `017${String(uniqueId).slice(-7)}${index + 1}`,
-      },
-    }));
+    ].map((owner) => {
+      const id = Helpers.uniqueId();
+      return {
+        ...owner,
+        memberData: {
+          name: `Owner Automation ${id}`,
+          email: `owner.automation.${id}@gmail.com`,
+          contact: Helpers.uniqueContact(), // valid 11-digit number
+        },
+      };
+    });
 
     await viewTowersPage.navigateTo();
     await viewTowersPage.verifyTowerListLoaded();
@@ -72,8 +72,6 @@ test.describe('Unit Owner Management', () => {
       unit.unitDetailsUrl,
       owners.map((owner) => owner.memberData),
     );
-
-    console.log(`Added 3 owners as 25%, 40%, and 35% owners for unit ${unit.unitNumber} (${unit.unitHref})`);
   });
 
   test('Find unoccupied unit and add existing member as owner', async ({
@@ -99,8 +97,6 @@ test.describe('Unit Owner Management', () => {
     await addOwnerPage.saveOwner();
 
     await unitOwnersPage.verifyOwnerNameAdded(unit.unitDetailsUrl, selectedOwnerName);
-
-    console.log(`Added existing member ${selectedOwnerName} as owner for unit ${unit.unitNumber} (${unit.unitHref})`);
   });
 
   test('Find available unit and change ownership to new owner', async ({
@@ -110,13 +106,18 @@ test.describe('Unit Owner Management', () => {
   }) => {
     test.setTimeout(90000);
 
-    const uniqueId = Date.now();
+    const id = Helpers.uniqueId();
     const memberData = {
-      name: `Owner Automation ${uniqueId}`,
-      email: `owner.automation.${uniqueId}@gmail.com`,
-      contact: `017${String(uniqueId).slice(-7)}`,
+      name: `Owner Automation ${id}`,
+      email: `owner.automation.${id}@gmail.com`,
+      contact: Helpers.uniqueContact(), // valid 11-digit number
     };
-    const previousDay = String(new Date(Date.now() - 24 * 60 * 60 * 1000).getDate());
+    // Ownership date in the past, clamped to a day that always exists in the
+    // current month so the date picker never lands on a previous-month cell.
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const ownershipDay = String(
+      yesterday.getMonth() === new Date().getMonth() ? yesterday.getDate() : new Date().getDate(),
+    );
 
     await viewTowersPage.navigateTo();
     await viewTowersPage.verifyTowerListLoaded();
@@ -128,13 +129,11 @@ test.describe('Unit Owner Management', () => {
 
     await addOwnerPage.changeOwnershipToNewMember(memberData, {
       percentage: '10',
-      day: previousDay,
+      day: ownershipDay,
     });
     await addOwnerPage.saveOwner();
 
     await unitOwnersPage.verifyOwnerNameAdded(unit.unitDetailsUrl, memberData.name);
-
-    console.log(`Changed ownership by adding ${memberData.name} as 10% owner for unit ${unit.unitNumber} (${unit.unitHref})`);
   });
 
   test('Find available unit and add resident', async ({
@@ -144,11 +143,11 @@ test.describe('Unit Owner Management', () => {
   }) => {
     test.setTimeout(90000);
 
-    const uniqueId = Date.now();
+    const id = Helpers.uniqueId();
     const residentData = {
-      name: `Resident Automation ${uniqueId}`,
-      email: `resident.automation.${uniqueId}@gmail.com`,
-      contact: `017${String(uniqueId).slice(-7)}`,
+      name: `Resident Automation ${id}`,
+      email: `resident.automation.${id}@gmail.com`,
+      contact: Helpers.uniqueContact(), // valid 11-digit number
     };
 
     await viewTowersPage.navigateTo();
@@ -163,8 +162,6 @@ test.describe('Unit Owner Management', () => {
     await addResidentPage.addNewResident(residentData);
 
     await unitResidentsPage.verifyResidentAdded(unit.unitDetailsUrl, residentData);
-
-    console.log(`Added ${residentData.name} as resident for unit ${unit.unitNumber} (${unit.unitHref})`);
   });
 });
 
@@ -189,8 +186,8 @@ test.describe('Unit Information Management', () => {
     await viewTowersPage.navigateTo();
     await viewTowersPage.verifyTowerListLoaded();
 
-    // Open a random unit
-    const unit = await viewTowersPage.openRandomAvailableUnit();
+    // Open a random unit (navigates to its details page)
+    await viewTowersPage.openRandomAvailableUnit();
 
     // Go to Unit Information tab
     await unitDetailsPage.goToUnitInformationTab();
@@ -210,8 +207,6 @@ test.describe('Unit Information Management', () => {
     
     // Click OK button
     await editUnitGeneralPage.clickOK();
-
-    console.log(`Successfully updated unit ${unit.unitNumber} with area: ${unitData.area}, bathrooms: ${unitData.bathrooms}, rooms: ${unitData.rooms}, balconies: ${unitData.balconies}`);
   });
 });
 
@@ -225,11 +220,11 @@ test.describe('Unit Staff Management', () => {
   }) => {
     test.setTimeout(90000);
 
-    const uniqueId = Date.now();
+    const id = Helpers.uniqueId();
     const staffData = {
-      name: `Staff Automation ${uniqueId}`,
-      email: `staff.automation.${uniqueId}@gmail.com`,
-      contact: `017${String(uniqueId).slice(-7)}`,
+      name: `Staff Automation ${id}`,
+      email: `staff.automation.${id}@gmail.com`,
+      contact: Helpers.uniqueContact(), // valid 11-digit number
     };
 
     await viewTowersPage.navigateTo();
@@ -243,7 +238,5 @@ test.describe('Unit Staff Management', () => {
     await addStaffPage.addNewStaff(staffData);
 
     await unitStaffPage.verifyStaffAdded(unit.unitDetailsUrl, staffData);
-
-    console.log(`Added ${staffData.name} as staff for unit ${unit.unitNumber} (${unit.unitHref})`);
   });
 });

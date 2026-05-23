@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { BasePage } from '../Base/BasePage';
 
 export class EditUnitGeneralPage extends BasePage {
@@ -62,12 +63,6 @@ export class EditUnitGeneralPage extends BasePage {
   }
 
   async verifySuccessMessage() {
-    // Wait for the page to settle after save
-    await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(1000);
-    // Wait for success message with increased timeout
-    await this.successMessage.waitFor({ state: 'visible', timeout: 30000 });
+    await expect(this.successMessage).toBeVisible({ timeout: 30000 });
   }
-
-
 }

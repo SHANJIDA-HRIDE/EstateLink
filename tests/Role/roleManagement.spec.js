@@ -18,8 +18,7 @@ test.describe('Role Management', () => {
 
     await roleListPage.clickAddRole();
 
+    // addNewRole asserts the success message before returning.
     await addRolePage.addNewRole(roleName, roleDescription);
-
-    console.log(`Successfully added role: ${roleName}`);
   });
 });

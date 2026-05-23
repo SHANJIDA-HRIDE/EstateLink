@@ -32,8 +32,6 @@ test.describe('Tower Management', () => {
     // 7. Verify redirect back to tower list
     await page.waitForURL('**/ViewTowers');
     await viewTowersPage.verifyTowerListLoaded();
-
-    console.log(`Tower '${testData.name}' created successfully!`);
   });
 
   test('Add tower with all fields populated', async ({ page, viewTowersPage, addTowerPage }) => {
@@ -66,7 +64,6 @@ test.describe('Tower Management', () => {
 
     // 6. Verify returned to tower list
     await expect(page).toHaveURL(/ViewTowers/);
-    console.log(`Tower '${testData.name}' with ${testData.floors} floors and ${testData.unitsPerFloor} units created successfully!`);
   });
 
   test('Add tower with minimum fields (name only)', async ({ page, viewTowersPage, addTowerPage }) => {
@@ -93,8 +90,6 @@ test.describe('Tower Management', () => {
     // 4. Verify success
     await addTowerPage.handleSuccessDialog();
     await viewTowersPage.verifyTowerListLoaded();
-
-    console.log(`Minimal tower '${testData.name}' created successfully!`);
   });
 
 });

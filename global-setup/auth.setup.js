@@ -1,6 +1,6 @@
-import { test as setup, expect } from '@playwright/test';
+import { test as setup } from '@playwright/test';
 import { LoginPage } from '../pages/Login/LoginPage';
-import credentials from '../test-data/credentials.json';
+import { credentials } from '../test-data/credentials.js';
 
 const authFile = 'playwright/.auth/user.json';
 

@@ -41,7 +41,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {
-        viewport: null, // Allow window to be completely maximized
+        viewport: { width: 1280, height: 720 },
         storageState: 'playwright/.auth/user.json',
       },
       dependencies: ['setup'],

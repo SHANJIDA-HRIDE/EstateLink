@@ -7,16 +7,15 @@ export class AddGroupPage extends BasePage {
     // Form inputs
     this.groupNameInput = page.locator('input[name="group_name"]');
     this.groupDescriptionInput = page.locator('textarea').first();
-    
+
     // Roles and Members selection
     this.rolesCheckboxes = page.locator('input[type="checkbox"]').filter({ hasText: /role/i });
-    this.membersDropdown = page.locator('input[placeholder*="Select Member"]').first();
-    this.membersList = page.locator('[role="option"]');
-    
+    this.memberCheckboxes = page.locator('input[type="checkbox"]');
+
     // Buttons
     this.createBtn = page.getByRole('button', { name: /^Create$/i });
     this.okBtn = page.getByRole('button', { name: /^OK$/i });
-    
+
     // Success message
     this.successMessage = page.getByText(/Group created successfully/i);
   }
@@ -30,81 +29,99 @@ export class AddGroupPage extends BasePage {
   }
 
   async selectAllRoles() {
-    // Get all role checkboxes and click the labels
-    const checkboxes = await this.page.locator('input[type="checkbox"]').all();
-    
+    // Wait for network to stabilize
+    await this.page.waitForLoadState('networkidle').catch(() => { });
+
+    // Wait for roles to load (we wait for at least one checkbox with name="role_ids" to be attached)
+    const roleCheckboxLocator = this.page.locator('input[type="checkbox"][name="role_ids"]');
+    await roleCheckboxLocator.first().waitFor({ state: 'attached', timeout: 15000 });
+    await this.page.waitForTimeout(1000); // Wait for list to finish rendering
+
+    const checkboxes = await roleCheckboxLocator.all();
+    console.log(`Found ${checkboxes.length} role checkboxes`);
+
+    let checkedCountBefore = 0;
     for (const checkbox of checkboxes) {
-      const checkboxId = await checkbox.getAttribute('id');
-      const isChecked = await checkbox.isChecked();
-      
-      if (!isChecked && checkboxId) {
-        // Find and click the associated label
-        const label = this.page.locator(`label[for="${checkboxId}"]`);
-        const labelExists = await label.count() > 0;
-        
-        if (labelExists) {
-          await label.click();
-        } else {
-          // If no label found, try clicking via evaluate
-          try {
-            await checkbox.evaluate((el) => el.click());
-          } catch (e) {
-            // Skip if can't click
-          }
-        }
-        await this.page.waitForTimeout(100);
-      }
+      if (await checkbox.isChecked()) checkedCountBefore++;
     }
-  }
+    console.log(`Already checked roles initially: ${checkedCountBefore}`);
 
-  async selectFirstMember() {
-    // Try different selectors for the members dropdown
-    const selectors = [
-      'input[placeholder*="Select Member"]',
-      'input[placeholder*="member"]',
-      'input[placeholder*="Member"]',
-      'select',
-      'div[role="listbox"]'
-    ];
-
-    let clicked = false;
-    for (const selector of selectors) {
+    let selectActionsCount = 0;
+    for (const checkbox of checkboxes) {
       try {
-        const element = this.page.locator(selector).first();
-        const isVisible = await element.isVisible({ timeout: 5000 }).catch(() => false);
-        if (isVisible) {
-          await element.click();
-          clicked = true;
-          await this.page.waitForTimeout(500);
-          break;
+        const isChecked = await checkbox.isChecked();
+        if (!isChecked) {
+          // Try parent label first (contains role name)
+          const parentLabel = checkbox.locator('xpath=ancestor::label[1]');
+          if (await parentLabel.count() > 0) {
+            await parentLabel.click();
+            selectActionsCount++;
+          } else {
+            // Fallback: evaluate JS click
+            await checkbox.evaluate((el) => { if (!el.checked) el.click(); });
+            selectActionsCount++;
+          }
+          await this.page.waitForTimeout(100);
         }
       } catch (e) {
-        // Continue to next selector
+        console.warn('Failed to check role checkbox:', e.message);
       }
     }
 
-    if (!clicked) {
-      console.warn('Could not find member dropdown, attempting alternative approach');
-      // Try clicking on any visible input near the member selection area
-      const allInputs = this.page.locator('input[type="text"]');
-      const count = await allInputs.count();
-      if (count > 2) {
-        await allInputs.nth(2).click(); // Usually 3rd input is members
-        await this.page.waitForTimeout(500);
+    // Verify check status
+    let checkedCountAfter = 0;
+    for (const checkbox of checkboxes) {
+      if (await checkbox.isChecked()) checkedCountAfter++;
+    }
+    console.log(`Select role actions performed: ${selectActionsCount}, total checked roles at end: ${checkedCountAfter} / ${checkboxes.length}`);
+  }
+
+  async selectAllMembers() {
+    // Wait for network to stabilize
+    await this.page.waitForLoadState('networkidle').catch(() => { });
+
+    // Wait for members to load (checkboxes that are NOT role_ids and NOT selectAll)
+    const memberCheckboxLocator = this.page.locator('input[type="checkbox"]:not([name="role_ids"]):not([id="selectAll"])');
+    await memberCheckboxLocator.first().waitFor({ state: 'attached', timeout: 15000 });
+    await this.page.waitForTimeout(1500); // Wait for list to finish rendering
+
+    const checkboxes = await memberCheckboxLocator.all();
+    console.log(`Found ${checkboxes.length} member checkboxes`);
+
+    let checkedCountBefore = 0;
+    for (const checkbox of checkboxes) {
+      if (await checkbox.isChecked()) checkedCountBefore++;
+    }
+    console.log(`Already checked members initially: ${checkedCountBefore}`);
+
+    let memberCheckboxCount = 0;
+    for (const checkbox of checkboxes) {
+      try {
+        const isChecked = await checkbox.isChecked();
+        if (!isChecked) {
+          // Try parent label first
+          const parentLabel = checkbox.locator('xpath=ancestor::label[1]');
+          if (await parentLabel.count() > 0) {
+            await parentLabel.click();
+            memberCheckboxCount++;
+          } else {
+            // Fallback: evaluate JS click
+            await checkbox.evaluate((el) => { if (!el.checked) el.click(); });
+            memberCheckboxCount++;
+          }
+          await this.page.waitForTimeout(100);
+        }
+      } catch (e) {
+        console.warn('Failed to check member checkbox:', e.message);
       }
     }
-    
-    // Select the first member from the list if available
-    try {
-      const firstMember = this.page.locator('[role="option"]').first();
-      const isMemberVisible = await firstMember.isVisible({ timeout: 5000 }).catch(() => false);
-      if (isMemberVisible) {
-        await firstMember.click();
-        await this.page.waitForTimeout(500);
-      }
-    } catch (e) {
-      console.warn('Could not click first member option', e);
+
+    // Verify check status
+    let checkedCountAfter = 0;
+    for (const checkbox of checkboxes) {
+      if (await checkbox.isChecked()) checkedCountAfter++;
     }
+    console.log(`Select member actions performed: ${memberCheckboxCount}, total checked members at end: ${checkedCountAfter} / ${checkboxes.length}`);
   }
 
   async clickCreate() {
@@ -119,16 +136,16 @@ export class AddGroupPage extends BasePage {
     // Fill group details
     await this.fillGroupName(groupName);
     await this.fillGroupDescription(groupDescription);
-    
+
+    // Select all members FIRST (before roles, to avoid checkbox state interference)
+    await this.selectAllMembers();
+
     // Select all roles
     await this.selectAllRoles();
-    
-    // Select first member
-    await this.selectFirstMember();
-    
+
     // Click Create button
     await this.clickCreate();
-    
+
     // Wait for success message and click OK
     await expect(this.successMessage).toBeVisible({ timeout: 30000 });
     await this.clickOK();

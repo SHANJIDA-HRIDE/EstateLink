@@ -28,6 +28,11 @@ export class NoticeBoardPage extends BasePage {
     return this.cards.count();
   }
 
+  /** Waits for the card list to render at least one card (or times out if the tab is empty). */
+  async waitForCards(timeout = 15000) {
+    await this.cards.first().waitFor({ state: 'visible', timeout });
+  }
+
   async searchNotices(term) {
     await this.searchInput.fill(term);
   }
@@ -80,6 +85,67 @@ export class NoticeBoardPage extends BasePage {
   async setDateRange(from, to) {
     await this.pickFilterDate('From', from);
     await this.pickFilterDate('To', to);
+  }
+
+  /** Selects one or more labels in the Select Label filter (options are checkbox <label>s). */
+  async filterByLabels(labels) {
+    await this.labelFilterBtn.click();
+    for (const label of labels) {
+      await this.page.locator('label').filter({ hasText: label }).first().click();
+    }
+    if (await this.doneBtn.count()) await this.doneBtn.first().click();
+  }
+
+  /** Creator heading (h3) of the first visible card. */
+  async firstCardCreator() {
+    return (await this.cards.first().locator('h3').first().innerText()).trim();
+  }
+
+  /** Label chip text from each of the first N cards (distinct). */
+  async firstCardsLabels(n) {
+    return this.page.evaluate((count) => {
+      const labels = [];
+      for (const c of [...document.querySelectorAll('[data-card-id]')].slice(0, count)) {
+        const chip = c.querySelector('span.bg-label');
+        if (chip && chip.innerText.trim()) labels.push(chip.innerText.trim());
+      }
+      return [...new Set(labels)];
+    }, n);
+  }
+
+  async everyCardHasAnyLabel(labels) {
+    return this.page.evaluate((arr) => {
+      const cards = [...document.querySelectorAll('[data-card-id]')];
+      return cards.length > 0 && cards.every((c) =>
+        arr.some((l) => [...c.querySelectorAll('span.bg-label')].some((s) => s.innerText.includes(l))),
+      );
+    }, labels);
+  }
+
+  /** True if every card carries an Urgent (red) priority flag. */
+  async everyCardHasUrgentFlag() {
+    return this.page.evaluate(() => {
+      const cards = [...document.querySelectorAll('[data-card-id]')];
+      return cards.length > 0 && cards.every((c) =>
+        [...c.querySelectorAll('svg')].some((s) => getComputedStyle(s).color === 'rgb(239, 68, 68)'),
+      );
+    });
+  }
+
+  /** Start date ("DD-MM-YYYY") of the first visible card. */
+  async firstCardStartDate() {
+    return this.page.evaluate(() => {
+      const c = document.querySelector('[data-card-id]');
+      const m = c && c.innerText.match(/Start:\s*(\d{2}-\d{2}-\d{4})/);
+      return m ? m[1] : null;
+    });
+  }
+
+  async everyCardStartsOn(dateStr) {
+    return this.page.evaluate((d) => {
+      const cards = [...document.querySelectorAll('[data-card-id]')];
+      return cards.length > 0 && cards.every((c) => c.innerText.includes(`Start: ${d}`));
+    }, dateStr);
   }
 
   /** Label chip text of the first visible card. */

@@ -18,6 +18,11 @@ import { GroupListPage } from '../pages/Group/GroupListPage';
 import { AddGroupPage } from '../pages/Group/AddGroupPage';
 import { AnnouncementsPage } from '../pages/Announcement/AnnouncementsPage';
 import { AddAnnouncementPage } from '../pages/Announcement/AddAnnouncementPage';
+import { UnitContactsPage } from '../pages/Unit/UnitContactsPage';
+import { ServiceFeeSettingsPage } from '../pages/ServiceFee/ServiceFeeSettingsPage';
+import { ServiceFeeBillUploadsPage } from '../pages/ServiceFee/ServiceFeeBillUploadsPage';
+import { BillingManagementPage } from '../pages/ServiceFee/BillingManagementPage';
+import { ServiceFeeListPage } from '../pages/ServiceFee/ServiceFeeListPage';
 import { NoticeBoardPage } from '../pages/Notice/NoticeBoardPage';
 import { AddNoticePage } from '../pages/Notice/AddNoticePage';
 
@@ -109,6 +114,26 @@ export const test = base.extend({
   addNoticePage: async ({ page }, use) => {
     const addNoticePage = new AddNoticePage(page);
     await use(addNoticePage);
+  },
+  unitContactsPage: async ({ page }, use) => {
+    const unitContactsPage = new UnitContactsPage(page);
+    await use(unitContactsPage);
+  },
+  serviceFeeSettingsPage: async ({ page }, use) => {
+    const serviceFeeSettingsPage = new ServiceFeeSettingsPage(page);
+    await use(serviceFeeSettingsPage);
+  },
+  serviceFeeBillUploadsPage: async ({ page }, use) => {
+    const serviceFeeBillUploadsPage = new ServiceFeeBillUploadsPage(page);
+    await use(serviceFeeBillUploadsPage);
+  },
+  billingManagementPage: async ({ page }, use) => {
+    const billingManagementPage = new BillingManagementPage(page);
+    await use(billingManagementPage);
+  },
+  serviceFeeListPage: async ({ page }, use) => {
+    const serviceFeeListPage = new ServiceFeeListPage(page);
+    await use(serviceFeeListPage);
   }
 });
 

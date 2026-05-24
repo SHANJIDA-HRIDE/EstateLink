@@ -1,25 +1,21 @@
 import { test, expect } from '../../fixtures/customTest';
 
-// Logged-in user (auth.setup account) — "My Post" lists notices they created.
-const CURRENT_USER = 'Shanjida Hride';
-
 const TABS = [
   { name: 'Ongoing', open: (b) => b.goToOngoingTab() },
   { name: 'Upcoming', open: (b) => b.goToUpcomingTab() },
   { name: 'Expired', open: (b) => b.goToExpiredTab() },
 ];
 
-test.describe('Notice Board - Filters & Search', () => {
+test.describe('Announcement Board - Filters & Search', () => {
   // Read-only filter checks against a shared live account — serial avoids
   // concurrent-session latency flakiness.
   test.describe.configure({ mode: 'serial' });
 
   for (const tab of TABS) {
-    test(`search & filters work on the ${tab.name} tab`, async ({ noticeBoardPage, page }) => {
+    test(`search & filters work on the ${tab.name} tab`, async ({ announcementsPage, page }) => {
       test.setTimeout(180000);
-      const board = noticeBoardPage;
+      const board = announcementsPage;
 
-      // Open the tab; if it has no notices, skip the data-dependent checks.
       const openTab = async () => {
         await board.navigateTo();
         await tab.open(board);
@@ -35,13 +31,13 @@ test.describe('Notice Board - Filters & Search', () => {
         return;
       }
 
-      await test.step('search finds a notice by its creator name', async () => {
+      await test.step('search finds an announcement by its title', async () => {
         await openTab();
-        const creator = await board.firstCardCreator();
-        await board.searchNotices(creator);
-        // Search is server-side (~seconds); poll until a matching card shows.
+        const title = await board.firstCardTitle();
+        await board.searchAnnouncements(title);
+        // Search is server-side (~seconds); poll until the matching card shows.
         await expect
-          .poll(() => page.locator('[data-card-id]', { hasText: creator }).count(), { timeout: 20000 })
+          .poll(() => page.locator('[data-card-id]', { hasText: title }).count(), { timeout: 20000 })
           .toBeGreaterThan(0);
       });
 
@@ -82,13 +78,6 @@ test.describe('Notice Board - Filters & Search', () => {
         const day = new Date(yyyy, mm - 1, dd);
         await board.setDateRange(day, day); // single-day range
         await expect.poll(() => board.everyCardStartsOn(ds), { timeout: 15000 }).toBe(true);
-      });
-
-      await test.step('My Post shows only notices created by the current user', async () => {
-        await openTab();
-        await board.toggleMyPost();
-        await expect.poll(() => board.isMyPostChecked(), { timeout: 10000 }).toBe(true);
-        await expect.poll(() => board.everyCardHasCreator(CURRENT_USER), { timeout: 15000 }).toBe(true);
       });
     });
   }

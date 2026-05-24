@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 import dotenv from 'dotenv';
 
 // Load environment variables from a local .env (gitignored). See .env.example.
@@ -44,8 +44,12 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 720 },
+        // Full-screen: maximize the window and let the page fill it (viewport: null).
+        // (Don't spread devices['Desktop Chrome'] — its deviceScaleFactor conflicts with viewport:null.)
+        viewport: null,
+        // --start-maximized fills the screen when headed; --window-size gives
+        // headless a large viewport too (viewport:null otherwise defaults tiny).
+        launchOptions: { args: ['--start-maximized', '--window-size=1920,1080'] },
         storageState: 'playwright/.auth/user.json',
       },
       dependencies: ['setup'],

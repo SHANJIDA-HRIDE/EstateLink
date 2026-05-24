@@ -17,7 +17,9 @@ setup('authenticate', async ({ page }) => {
   // 3. Wait for navigation to complete after login
   // We use the inherited waitForUrl from BasePage
   await loginPage.waitForUrl(url => !url.href.includes('/login'));
-  await loginPage.waitForNetworkIdle();
+  // 'networkidle' is unreliable on this app (continuous polling never settles);
+  // wait for the document to finish loading instead.
+  await page.waitForLoadState('load');
 
   // 4. Save the storage state (cookies, local storage) to a file
   await page.context().storageState({ path: authFile });

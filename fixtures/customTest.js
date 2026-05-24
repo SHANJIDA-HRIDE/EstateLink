@@ -18,6 +18,8 @@ import { GroupListPage } from '../pages/Group/GroupListPage';
 import { AddGroupPage } from '../pages/Group/AddGroupPage';
 import { AnnouncementsPage } from '../pages/Announcement/AnnouncementsPage';
 import { AddAnnouncementPage } from '../pages/Announcement/AddAnnouncementPage';
+import { NoticeBoardPage } from '../pages/Notice/NoticeBoardPage';
+import { AddNoticePage } from '../pages/Notice/AddNoticePage';
 
 /**
  * Custom test fixture that automatically instantiates Page Objects
@@ -99,6 +101,14 @@ export const test = base.extend({
   addAnnouncementPage: async ({ page }, use) => {
     const addAnnouncementPage = new AddAnnouncementPage(page);
     await use(addAnnouncementPage);
+  },
+  noticeBoardPage: async ({ page }, use) => {
+    const noticeBoardPage = new NoticeBoardPage(page);
+    await use(noticeBoardPage);
+  },
+  addNoticePage: async ({ page }, use) => {
+    const addNoticePage = new AddNoticePage(page);
+    await use(addNoticePage);
   }
 });
 

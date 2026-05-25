@@ -30,6 +30,29 @@ export class Helpers {
     };
   }
 
+  /**
+   * Member data with every optional General-Information field populated.
+   * Addresses/NID embed the unique name so they're individually assertable on
+   * the profile page. dob is a fixed past Date (datepicker-friendly).
+   */
+  static generateFullMemberData() {
+    const base = this.generateMemberData();
+    return {
+      ...base,
+      nidNumber: this.uniqueId().slice(-13).padStart(13, '0'),
+      permanentAddress: `Permanent Addr ${base.name}`,
+      presentAddress: `Present Addr ${base.name}`,
+      occupation: 'Software Engineer',
+      gender: 'Male',
+      maritalStatus: 'Single',
+      religion: 'Islam',
+      description: `Automation profile for ${base.name}`,
+      facebook: 'https://facebook.com/automation.qa',
+      linkedin: 'https://linkedin.com/in/automation.qa',
+      dob: new Date(1990, 5, 15), // 1990-06-15
+    };
+  }
+
   static generateTowerData() {
     const id = this.uniqueId();
     return {

@@ -2,6 +2,8 @@ import { test as base } from '@playwright/test';
 import { LoginPage } from '../pages/Login/LoginPage';
 import { MemberListPage } from '../pages/Org Member/MemberListPage';
 import { AddMemberPage } from '../pages/Org Member/AddMemberPage';
+import { MemberProfilePage } from '../pages/Org Member/MemberProfilePage';
+import { EditMemberGeneralPage } from '../pages/Org Member/EditMemberGeneralPage';
 import { ViewTowersPage } from '../pages/Tower/ViewTowersPage';
 import { AddTowerPage } from '../pages/Tower/AddTowerPage';
 import { UnitDetailsPage } from '../pages/Unit/UnitDetailsPage';
@@ -42,6 +44,14 @@ export const test = base.extend({
   addMemberPage: async ({ page }, use) => {
     const addMemberPage = new AddMemberPage(page);
     await use(addMemberPage);
+  },
+  memberProfilePage: async ({ page }, use) => {
+    const memberProfilePage = new MemberProfilePage(page);
+    await use(memberProfilePage);
+  },
+  editMemberGeneralPage: async ({ page }, use) => {
+    const editMemberGeneralPage = new EditMemberGeneralPage(page);
+    await use(editMemberGeneralPage);
   },
   viewTowersPage: async ({ page }, use) => {
     const viewTowersPage = new ViewTowersPage(page);

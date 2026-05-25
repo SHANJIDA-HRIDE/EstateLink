@@ -21,6 +21,33 @@ export class AddTowerPage extends BasePage {
     // Success dialog
     this.successMessage = page.getByText('Tower created successfully');
     this.okButton = page.getByRole('button', { name: /OK/i });
+
+    // Photo upload validation
+    this.photoTypeError = page.getByText(/Unsupported file format\. Only JPG, JPEG, and PNG are allowed\./i);
+    this.photoSizeError = page.getByText(/File size must be less than 5MB/i);
+
+    // Edit form (shares this page's fields)
+    this.updateBtn = page.getByRole('button', { name: /^Update$/i });
+    this.updateSuccess = page.getByText(/Updated successfully/i);
+  }
+
+  /** Edits the tower name on the edit form and saves via Update. */
+  async editTowerName(name) {
+    await expect(this.towerNameInput).not.toHaveValue('', { timeout: 15000 }); // prefill loaded
+    await this.towerNameInput.fill(name);
+    await this.updateBtn.click();
+    await expect(this.updateSuccess).toBeVisible({ timeout: 15000 });
+    await this.okButton.click();
+  }
+
+  /** Changes floors + units per floor on the edit form and saves (regenerates the grid). */
+  async editFloorsUnits(floors, units) {
+    await expect(this.towerNameInput).not.toHaveValue('', { timeout: 15000 }); // prefill loaded
+    await this.page.locator('input[name="num_floors"]').fill(String(floors));
+    await this.page.locator('input[name="num_units"]').fill(String(units));
+    await this.updateBtn.click();
+    await expect(this.updateSuccess).toBeVisible({ timeout: 15000 });
+    await this.okButton.click();
   }
 
   async navigateTo() {
@@ -61,6 +88,16 @@ export class AddTowerPage extends BasePage {
     if (towerData.unitNaming) {
       await this.selectUnitNaming(towerData.unitNaming);
     }
+  }
+
+  /** Uploads a tower photo. */
+  async uploadPhoto(filePath) {
+    await this.page.locator('input[type="file"]').first().setInputFiles(filePath);
+  }
+
+  /** Toggles the "Add Tower Number to Unit Name" checkbox (prefixes units with the tower #). */
+  async addTowerNumberToUnitName() {
+    await this.page.getByText('Add Tower Number to Unit Name', { exact: true }).click();
   }
 
   async saveTower() {

@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { BasePage } from '../Base/BasePage';
 import { ENV } from '../../env/env.config';
 
@@ -21,6 +22,61 @@ export class ViewTowersPage extends BasePage {
 
   async verifyTowerListLoaded() {
     await this.addTowerBtn.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+  }
+
+  /** Asserts a tower card with the given name is present in the grid. */
+  async verifyTowerVisible(name) {
+    await expect(this.page.getByText(name, { exact: false }).first()).toBeVisible({ timeout: LOAD_TIMEOUT });
+  }
+
+  /** Returns the "/EditTower/{id}" href for a tower card by name. */
+  async towerEditHref(name) {
+    await this.page.getByText(name, { exact: false }).first().waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+    return this.page.evaluate((n) => {
+      const c = (s) => (s || '').replace(/\s+/g, ' ').trim();
+      const btn = [...document.querySelectorAll('button')].find((b) => c(b.innerText).includes(n));
+      let sec = btn;
+      for (let i = 0; i < 8 && sec; i++) {
+        const a = sec.querySelector && sec.querySelector('a[href*="EditTower/"]');
+        if (a) return a.getAttribute('href');
+        sec = sec.parentElement;
+      }
+      return null;
+    }, name);
+  }
+
+  /** Opens a tower's edit page (/EditTower/{id}) and waits for the form. */
+  async openTowerEdit(name) {
+    const href = await this.towerEditHref(name);
+    await this.page.goto(`${ENV.BASE_URL}${href}`, { waitUntil: 'domcontentloaded' });
+    await this.page.locator('input[name="tower_name"]').waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+  }
+
+  /** Reads the auto-assigned tower number from a tower card header "(Tower N)". */
+  async towerNumber(name) {
+    const card = this.page.getByRole('button', { name: new RegExp(name) }).first();
+    await card.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+    const m = (await card.innerText()).match(/\(Tower\s+(\d+)\)/);
+    return m ? m[1] : null;
+  }
+
+  /** Expands a tower card's overview and returns its unit labels (e.g. ["1A","1B",...]). */
+  async towerUnitNames(name) {
+    const card = this.page.getByRole('button', { name: new RegExp(name) }).first();
+    await card.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+    await card.click();
+    await this.page.waitForTimeout(2000); // overview expands inline
+    return this.page.evaluate((n) => {
+      const c = (s) => (s || '').replace(/\s+/g, ' ').trim();
+      const btn = [...document.querySelectorAll('button')].find((b) => c(b.innerText).includes(n));
+      let sec = btn;
+      for (let i = 0; i < 6 && sec; i++) {
+        if (sec.querySelector && sec.querySelector('a[href^="/unit-details/"]')) break;
+        sec = sec.parentElement;
+      }
+      if (!sec) return [];
+      return [...sec.querySelectorAll('a[href^="/unit-details/"]')].map((a) => c(a.innerText));
+    }, name);
   }
 
   getUnoccupiedUnits() {

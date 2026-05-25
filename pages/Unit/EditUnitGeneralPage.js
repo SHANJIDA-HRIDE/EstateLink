@@ -35,6 +35,17 @@ export class EditUnitGeneralPage extends BasePage {
     await this.numberOfBalconiesInput.fill(balconies.toString());
   }
 
+  /** Waits for the edit form to mount + settle (values load asynchronously). */
+  async waitLoaded() {
+    await this.areaInput.waitFor({ state: 'visible', timeout: 15000 });
+    await this.page.waitForTimeout(1500);
+  }
+
+  /** Uploads a unit document/attachment. */
+  async uploadDocument(filePath) {
+    await this.page.locator('input[type="file"]').first().setInputFiles(filePath);
+  }
+
   async fillGeneralInfo(unitData) {
     if (unitData.area) {
       await this.fillArea(unitData.area);

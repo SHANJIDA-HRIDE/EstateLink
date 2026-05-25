@@ -52,4 +52,30 @@ export class UnitDetailsPage extends BasePage {
       this.page.getByRole('heading', { name: new RegExp(unitNumber) }),
     ).toBeVisible({ timeout: 10000 });
   }
+
+  /** Reads the value rendered after a General Information label (<p>label</p> + next sibling). */
+  async fieldValue(label) {
+    return this.page.evaluate((lbl) => {
+      for (const p of document.querySelectorAll('p')) {
+        if (p.textContent.trim() === lbl) {
+          const v = p.nextElementSibling;
+          if (v) return v.textContent.trim();
+        }
+      }
+      return null;
+    }, label);
+  }
+
+  async verifyField(label, expected) {
+    await expect.poll(() => this.fieldValue(label), { timeout: 15000 }).toBe(expected);
+  }
+
+  async verifyFieldContains(label, substring) {
+    await expect.poll(async () => (await this.fieldValue(label)) || '', { timeout: 15000 }).toContain(substring);
+  }
+
+  /** Asserts an uploaded unit document image is shown (served from media/unit_docs). */
+  async verifyDocumentPresent() {
+    await expect(this.page.locator('img[src*="unit_docs"]').first()).toBeVisible({ timeout: 15000 });
+  }
 }

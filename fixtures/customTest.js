@@ -4,6 +4,7 @@ import { MemberListPage } from '../pages/Org Member/MemberListPage';
 import { AddMemberPage } from '../pages/Org Member/AddMemberPage';
 import { MemberProfilePage } from '../pages/Org Member/MemberProfilePage';
 import { EditMemberGeneralPage } from '../pages/Org Member/EditMemberGeneralPage';
+import { EditOrgMemberPage } from '../pages/Org Member/EditOrgMemberPage';
 import { ViewTowersPage } from '../pages/Tower/ViewTowersPage';
 import { AddTowerPage } from '../pages/Tower/AddTowerPage';
 import { UnitDetailsPage } from '../pages/Unit/UnitDetailsPage';
@@ -15,6 +16,7 @@ import { UnitResidentsPage } from '../pages/Resident/UnitResidentsPage';
 import { AddStaffPage } from '../pages/Staff/AddStaffPage';
 import { UnitStaffPage } from '../pages/Staff/UnitStaffPage';
 import { RoleListPage } from '../pages/Role/RoleListPage';
+import { RoleProfilePage } from '../pages/Role/RoleProfilePage';
 import { AddRolePage } from '../pages/Role/AddRolePage';
 import { GroupListPage } from '../pages/Group/GroupListPage';
 import { AddGroupPage } from '../pages/Group/AddGroupPage';
@@ -52,6 +54,10 @@ export const test = base.extend({
   editMemberGeneralPage: async ({ page }, use) => {
     const editMemberGeneralPage = new EditMemberGeneralPage(page);
     await use(editMemberGeneralPage);
+  },
+  editOrgMemberPage: async ({ page }, use) => {
+    const editOrgMemberPage = new EditOrgMemberPage(page);
+    await use(editOrgMemberPage);
   },
   viewTowersPage: async ({ page }, use) => {
     const viewTowersPage = new ViewTowersPage(page);
@@ -96,6 +102,10 @@ export const test = base.extend({
   roleListPage: async ({ page }, use) => {
     const roleListPage = new RoleListPage(page);
     await use(roleListPage);
+  },
+  roleProfilePage: async ({ page }, use) => {
+    const roleProfilePage = new RoleProfilePage(page);
+    await use(roleProfilePage);
   },
   addRolePage: async ({ page }, use) => {
     const addRolePage = new AddRolePage(page);

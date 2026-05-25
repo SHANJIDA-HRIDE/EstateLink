@@ -152,7 +152,9 @@ export class AddMemberPage extends BasePage {
 
   async selectRoleAndType() {
     await this.memberTypeManagement.click();
-    await this.memberRoleFirst.click();
+    // The role checkbox list loads asynchronously (can take ~15s) — wait before selecting.
+    await this.memberRoleFirst.waitFor({ state: 'attached', timeout: 30000 });
+    await this.memberRoleFirst.check({ force: true });
   }
 
   async clickNext() {

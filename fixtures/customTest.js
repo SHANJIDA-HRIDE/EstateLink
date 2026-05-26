@@ -29,6 +29,7 @@ import { BillingManagementPage } from '../pages/ServiceFee/BillingManagementPage
 import { ServiceFeeListPage } from '../pages/ServiceFee/ServiceFeeListPage';
 import { NoticeBoardPage } from '../pages/Notice/NoticeBoardPage';
 import { AddNoticePage } from '../pages/Notice/AddNoticePage';
+import { CommunityMemberListPage } from '../pages/Community Member/CommunityMemberListPage';
 
 /**
  * Custom test fixture that automatically instantiates Page Objects
@@ -154,6 +155,10 @@ export const test = base.extend({
   serviceFeeListPage: async ({ page }, use) => {
     const serviceFeeListPage = new ServiceFeeListPage(page);
     await use(serviceFeeListPage);
+  },
+  communityMemberListPage: async ({ page }, use) => {
+    const communityMemberListPage = new CommunityMemberListPage(page);
+    await use(communityMemberListPage);
   }
 });
 

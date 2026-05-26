@@ -23,6 +23,21 @@ export class UnitOwnersPage extends BasePage {
     await expect(this.page).toHaveURL(/\/unit\/\d+\/change-owner$/);
   }
 
+  /** Reads owner rows from the Owners tab table as [{name, percent}]. */
+  async ownerRows() {
+    return this.page.evaluate(() => {
+      const out = [];
+      for (const tr of document.querySelectorAll('table tbody tr')) {
+        const td = [...tr.querySelectorAll('td')];
+        if (td.length < 4) continue;
+        const pctCell = td.find((c) => /\d+(\.\d+)?\s*%/.test(c.innerText));
+        const m = pctCell && pctCell.innerText.match(/(\d+(\.\d+)?)\s*%/);
+        out.push({ name: td[0].innerText.trim(), percent: m ? parseFloat(m[1]) : null });
+      }
+      return out;
+    });
+  }
+
   async verifyOwnerAdded(unitDetailsUrl, memberData) {
     await expect(async () => {
       await this.navigateToOwnersTab(unitDetailsUrl);

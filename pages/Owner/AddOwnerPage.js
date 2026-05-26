@@ -6,6 +6,8 @@ export class AddOwnerPage extends BasePage {
   constructor(page) {
     super(page);
     this.addNewMemberBtn = page.getByRole('button', { name: /Add New Member/i });
+    this.addNewCompanyBtn = page.getByRole('button', { name: /Add New Company/i });
+    this.companyNameInput = page.locator('input[name="company_name"]');
     this.memberNameInput = page.locator('input[name="full_name"]');
     this.memberEmailInput = page.locator('input[name="general_email"]');
     this.memberContactInput = page.locator('input[name="general_contact"]');
@@ -32,6 +34,27 @@ export class AddOwnerPage extends BasePage {
 
   async navigateToAddOwner(unitId) {
     await this.navigate(`${ENV.BASE_URL}/unit/${unitId}/add-owner`);
+  }
+
+  /**
+   * Adds a new Company as owner via the company drawer (a modal whose Next/Submit are
+   * <input type="button"> controls, not <button>s). On submit the drawer closes and
+   * the company becomes the selected owner; ownership %/date are filled afterwards.
+   */
+  async addNewCompany(companyData, ownerIndex = 0) {
+    await this.addNewCompanyBtn.first().click();
+    await this.companyNameInput.waitFor({ state: 'visible', timeout: 15000 });
+    await this.companyNameInput.fill(companyData.name);
+    await this.memberEmailInput.fill(companyData.email);
+    await this.memberContactInput.fill(companyData.contact);
+    await this.page.locator('input[type="button"][value="Next"]').click();
+    await this.page.locator('input[value="Submit"]').click();
+    await expect(this.selectedOwnerInput.nth(ownerIndex)).toHaveValue(companyData.name);
+  }
+
+  /** Uploads an ownership document (the add-owner form's file input). */
+  async uploadOwnershipDocument(filePath) {
+    await this.page.locator('input[type="file"]').last().setInputFiles(filePath);
   }
 
   async addNewMember(memberData, ownerIndex = 0) {
@@ -120,6 +143,22 @@ export class AddOwnerPage extends BasePage {
     await this.saveBtn.click();
     await expect(
       this.page.getByText(`Total ownership percentage must be exactly 100%. Current total: ${expectedTotal}%`),
+    ).toBeVisible({ timeout: 15000 });
+  }
+
+  /** Saves and asserts the duplicate-email server error. */
+  async saveOwnerAndVerifyDuplicateEmail() {
+    await this.saveBtn.click();
+    await expect(
+      this.page.getByText(/This email address is already in use/i).first(),
+    ).toBeVisible({ timeout: 15000 });
+  }
+
+  /** Saves and asserts the per-owner percentage range error (e.g. for 0% or >100%). */
+  async saveOwnerAndVerifyPercentageRangeError() {
+    await this.saveBtn.click();
+    await expect(
+      this.page.getByText(/Each ownership percentage must be greater than 0 and less than or equal to 100%/i).first(),
     ).toBeVisible({ timeout: 15000 });
   }
 }
